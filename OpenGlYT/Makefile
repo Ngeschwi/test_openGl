@@ -1,5 +1,7 @@
 SRCS	=	main.cpp \
-			common/shader.cpp
+			srcs/Shapes.cpp \
+			common/shader.cpp \
+			common/texture.cpp \
 
 OBJS	=	$(SRCS:.cpp=.o)
 
@@ -19,7 +21,7 @@ all : $(NAME)
 $(NAME) : $(OBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(NAME)
 
-$(OBJS) : #includes/*.hpp
+$(OBJS) : includes/*.hpp common/*.hpp
 
 clean :
 	$(RM) $(OBJS)
