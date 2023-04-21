@@ -8,7 +8,6 @@ out vec3 color;
 
 // Values that stay constant for the whole mesh.
 uniform sampler2D myTextureSampler;
-//uniform vec3 myColor;
 
 void main(){
     color = texture(myTextureSampler, UV).rgb;

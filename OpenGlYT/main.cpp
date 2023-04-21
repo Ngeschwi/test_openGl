@@ -12,7 +12,10 @@ GLFWwindow* window;
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-using namespace glm;
+
+//using namespace glm;
+
+#include "includes/Shapes.hpp"
 
 #include "common/shader.hpp"
 #include "common/texture.hpp"
@@ -70,37 +73,23 @@ int main( void )
     // Create and compile our GLSL program from the shaders
     GLuint programID = LoadShaders( "shaders/SimpleVertexShader.vert", "shaders/SimpleFragmentShader.frag" );
 
-
-    /*
-     * Matrix stuff
-     */
-
-    // Get a handle for our "MVP_cube" uniform
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
-    // Projection matrix : 45� Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-    // Pour un rendu en perspective : (3D)
-    glm::mat4 Projection = glm::perspective(glm::radians(30.0f), 4.0f / 3.0f, 0.1f, 100.0f);
-    // Or, for an ortho camera :
-    // pour un rendu en orthogonale : (2D) (une vue de dessus)
+    Shape triangle = Shape();
+    Shape cube = Shape();
+
+    glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
     //glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
     // Camera matrix
     glm::mat4 View = glm::lookAt(
-            glm::vec3(10, 9, 9), // Camera is at (4,3,3), in World Space
+            glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
             glm::vec3(0,0,0), // and looks at the origin
             glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
     );
 
-    // Translation matrix : move the object to the center of the world
-    glm::mat4 myTranslation_cube = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    // Rotation matrix : rotate the object around a chosen axis
-    glm::mat4 myRotation_cube = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    // Scale matrix : scale the object to 1/4 of its size
-    glm::mat4 myScale_cube = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-
-    // Model matrix : an identity matrix (model will be at the origin) (Translation * Rotation * Scale)
-    glm::mat4 Model_cube = myTranslation_cube * myRotation_cube * myScale_cube;
+    triangle.setProjection(Projection);
+    cube.setProjection(Projection);
 
     // Our ModelViewProjection : multiplication of our 3 matrices
     glm::mat4 MVP_cube = Projection * View * Model_cube;
@@ -194,10 +183,8 @@ int main( void )
             0.667979f, 1.0f-0.335851f
     };
 
-    GLuint vertexBufferCube;
-    glGenBuffers(1, &vertexBufferCube);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferCube);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_cube_buffer_data), g_vertex_cube_buffer_data, GL_STATIC_DRAW);
+    cube.setVertices(g_vertex_cube_buffer_data);
+    cube.setUv(g_uv_buffer_data);
 
     GLuint uvBufferCube;
     glGenBuffers(1, &uvBufferCube);

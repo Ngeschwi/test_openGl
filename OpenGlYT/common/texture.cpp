@@ -6,7 +6,6 @@
 
 #include <GLFW/glfw3.h>
 
-
 GLuint loadBMP_custom(const char * imagepath){
 
     printf("Reading image %s\n", imagepath);
@@ -105,7 +104,7 @@ GLuint loadBMP_custom(const char * imagepath){
 //	glBindTexture(GL_TEXTURE_2D, textureID);
 //
 //	// Read the file, call glTexImage2D with the right parameters
-//	glfwLoadTexture2D(imagepath, 0);
+//	glfwLoadTexture2D(imagepath, 0);re2D(imagePath, 0);
 //
 //	// Nice trilinear filtering.
 //	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
