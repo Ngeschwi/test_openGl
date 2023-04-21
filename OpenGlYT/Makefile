@@ -1,7 +1,7 @@
 SRCS	=	main.cpp \
-			srcs/Shapes.cpp \
 			common/shader.cpp \
 			common/texture.cpp \
+			common/controls.cpp
 
 OBJS	=	$(SRCS:.cpp=.o)
 

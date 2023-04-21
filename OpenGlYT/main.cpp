@@ -91,33 +91,26 @@ int main( void )
     triangle.setProjection(Projection);
     cube.setProjection(Projection);
 
-    triangle.setView(View);
-    cube.setView(View);
+    // Our ModelViewProjection : multiplication of our 3 matrices
+    glm::mat4 MVP_cube = Projection * View * Model_cube;
 
-    triangle.setTranslation(glm::vec3(0.0f, 0.0f, 0.0f));
-    triangle.setRotation(glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    triangle.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    // Load the texture using any two methods
+    GLuint Texture = loadBMP_custom("uvTemplates/uvTemplate.bmp");
+    // GLuint Texture = loadDDS("uvTemplates/uvTemplate.DDS")
+    // GLuint Texture = loadTGA_glfw("uvTemplates/uvTemplate.tga");
 
-    cube.setTranslation(glm::vec3(0.0f, 0.0f, 0.0f));
-    cube.setRotation(glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-    cube.setScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    // Get a handle for our "myTextureSampler" uniform
+    GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
-    triangle.setModel();
-    triangle.setMVP();
-
-    cube.setModel();
-    cube.setMVP();
-
-    cube.setTexture("uvTemplates/uvTemplate.DDS");
-    cube.setTextureID(programID, "myTextureSampler");
-
-    const GLfloat g_vertex_cube_buffer_data[] = {
-            -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-            -1.0f,-1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f, // triangle 1 : end
-            1.0f, 1.0f,-1.0f, // triangle 2 : begin
+    // Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
+    // A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
+    static const GLfloat g_vertex_cube_buffer_data[] = {
             -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f, // triangle 2 : end
+            -1.0f,-1.0f, 1.0f,
+            -1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f,-1.0f,
+            -1.0f,-1.0f,-1.0f,
+            -1.0f, 1.0f,-1.0f,
             1.0f,-1.0f, 1.0f,
             -1.0f,-1.0f,-1.0f,
             1.0f,-1.0f,-1.0f,
@@ -150,7 +143,8 @@ int main( void )
             1.0f,-1.0f, 1.0f
     };
 
-   const GLfloat g_uv_buffer_data[] = {
+    // Two UV coordinatesfor each vertex. They were created with Blender.
+    static const GLfloat g_uv_buffer_data[] = {
             0.000059f, 1.0f-0.000004f,
             0.000103f, 1.0f-0.336048f,
             0.335973f, 1.0f-0.335903f,
@@ -192,49 +186,43 @@ int main( void )
     cube.setVertices(g_vertex_cube_buffer_data);
     cube.setUv(g_uv_buffer_data);
 
-    cube.setBufferVBO();
-
-    // another triangle but not in the cube
-    static const GLfloat g_vertex_triangle_buffer_data[] = {
-            -1.0f,-1.0f,0.0f,
-            1.0f,-1.0f,0.0f,
-            0.0f,1.0f,0.0f
-    };
-
-    static const GLfloat g_color_triangle_buffer_data[] = {
-            0.583f, 0.771f, 0.014f,
-            0.609f, 0.115f, 0.436f,
-            0.327f, 0.483f, 0.844f
-    };
-
-    triangle.setVertices(g_vertex_triangle_buffer_data);
-    triangle.setColors(g_color_triangle_buffer_data);
-
-    triangle.setBufferVBO();
+    GLuint uvBufferCube;
+    glGenBuffers(1, &uvBufferCube);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBufferCube);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
 
     do{
-        // Clear the screen
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Use our shader
         glUseProgram(programID);
 
-        cube.draw(MatrixID, GL_TRIANGLES, 0, 12 * 3);
+        glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP_cube[0][0]);
 
-        //triangle.draw(MatrixID, GL_TRIANGLES, 0, 3);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, Texture);
+        glUniform1i(TextureID, 0);
 
-        // Swap buffers
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBufferCube);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, uvBufferCube);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+        glDrawArrays(GL_TRIANGLES, 0, 12*3);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-    } // Check if the ESC key was pressed or the window was closed
-    while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
+    } while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0 );
 
     // Cleanup VBO and shader
-    triangle.cleanUp();
-    cube.cleanUp();
+    glDeleteBuffers(1, &vertexBufferCube);
+    glDeleteBuffers(1, &uvBufferCube);
     glDeleteProgram(programID);
+    glDeleteTextures(1, &Texture);
     glDeleteVertexArrays(1, &VertexArrayID);
 
     // Close OpenGL window and terminate GLFW

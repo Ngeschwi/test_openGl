@@ -6,10 +6,9 @@
 
 #include <GLFW/glfw3.h>
 
+GLuint loadBMP_custom(const char * imagepath){
 
-GLuint loadBMP_custom(const char * imagePath){
-
-    printf("Reading image %s\n", imagePath);
+    printf("Reading image %s\n", imagepath);
 
     // Data read from the header of the BMP file
     unsigned char header[54];
@@ -20,9 +19,9 @@ GLuint loadBMP_custom(const char * imagePath){
     unsigned char * data;
 
     // Open the file
-    FILE * file = fopen(imagePath,"rb");
+    FILE * file = fopen(imagepath,"rb");
     if (!file){
-        printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagePath);
+        printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath);
         getchar();
         return 0;
     }
@@ -95,7 +94,7 @@ GLuint loadBMP_custom(const char * imagePath){
 
 // Since GLFW 3, glfwLoadTexture2D() has been removed. You have to use another texture loading library,
 // or do it yourself (just like loadBMP_custom and loadDDS)
-//GLuint loadTGA_glfw(const char * imagePath){
+//GLuint loadTGA_glfw(const char * imagepath){
 //
 //	// Create one OpenGL texture
 //	GLuint textureID;
@@ -105,7 +104,7 @@ GLuint loadBMP_custom(const char * imagePath){
 //	glBindTexture(GL_TEXTURE_2D, textureID);
 //
 //	// Read the file, call glTexImage2D with the right parameters
-//	glfwLoadTexture2D(imagePath, 0);
+//	glfwLoadTexture2D(imagepath, 0);re2D(imagePath, 0);
 //
 //	// Nice trilinear filtering.
 //	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -124,16 +123,16 @@ GLuint loadBMP_custom(const char * imagePath){
 #define FOURCC_DXT3 0x33545844 // Equivalent to "DXT3" in ASCII
 #define FOURCC_DXT5 0x35545844 // Equivalent to "DXT5" in ASCII
 
-GLuint loadDDS(const char * imagePath){
+GLuint loadDDS(const char * imagepath){
 
     unsigned char header[124];
 
     FILE *fp;
 
     /* try to open the file */
-    fp = fopen(imagePath, "rb");
+    fp = fopen(imagepath, "rb");
     if (fp == NULL){
-        printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagePath); getchar();
+        printf("%s could not be opened. Are you in the right directory ? Don't forget to read the FAQ !\n", imagepath); getchar();
         return 0;
     }
 
