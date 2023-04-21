@@ -15,8 +15,6 @@ GLFWwindow* window;
 
 //using namespace glm;
 
-#include "includes/Shapes.hpp"
-
 #include "common/shader.hpp"
 #include "common/texture.hpp"
 
@@ -75,21 +73,21 @@ int main( void )
 
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
-    Shape triangle = Shape();
-    Shape cube = Shape();
-
     glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.1f, 100.0f);
     //glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
     // Camera matrix
     glm::mat4 View = glm::lookAt(
-            glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
+            glm::vec3(8, 7, 7), // Camera is at (4,3,3), in World Space
             glm::vec3(0,0,0), // and looks at the origin
             glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
     );
 
-    triangle.setProjection(Projection);
-    cube.setProjection(Projection);
+    glm::mat4 myTranslation_cube = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    glm::mat4 myRotation_cube = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    glm::mat4 myScale_cube = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+
+    glm::mat4 Model_cube = myTranslation_cube * myRotation_cube * myScale_cube;
 
     // Our ModelViewProjection : multiplication of our 3 matrices
     glm::mat4 MVP_cube = Projection * View * Model_cube;
@@ -183,8 +181,10 @@ int main( void )
             0.667979f, 1.0f-0.335851f
     };
 
-    cube.setVertices(g_vertex_cube_buffer_data);
-    cube.setUv(g_uv_buffer_data);
+    GLuint vertexBufferCube;
+    glGenBuffers(1, &vertexBufferCube);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferCube);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_cube_buffer_data), g_vertex_cube_buffer_data, GL_STATIC_DRAW);
 
     GLuint uvBufferCube;
     glGenBuffers(1, &uvBufferCube);
