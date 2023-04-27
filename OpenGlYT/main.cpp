@@ -1,6 +1,7 @@
 // Include standard headers
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 // Include GLEW
 #include <GL/glew.h>
@@ -18,6 +19,7 @@ GLFWwindow* window;
 #include "common/shader.hpp"
 #include "common/texture.hpp"
 #include "common/controls.hpp"
+#include "common/objloader.hpp"
 
 int main( void )
 {
@@ -75,13 +77,21 @@ int main( void )
     GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
     // Load the texture using any two methods
-    GLuint Texture = loadBMP_custom("uvTemplates/uvTemplate.bmp");
-    // GLuint Texture = loadDDS("uvTemplates/uvTemplate.DDS")
+    // GLuint Texture = loadBMP_custom("uvTemplates/uvTemplate.bmp");
+    GLuint Texture = loadDDS("uvTemplates/uvTemplate.DDS");
     // GLuint Texture = loadTGA_glfw("uvTemplates/uvTemplate.tga");
 
     // Get a handle for our "myTextureSampler" uniform
     GLuint TextureID  = glGetUniformLocation(programID, "myTextureSampler");
 
+    // Read our .obj file
+    std::vector<glm::vec3> vertices;
+    std::vector<glm::vec2> uvs;
+    std::vector<glm::vec3> normals; // Won't be used at the moment.
+    bool res = loadOBJ("obj/cube.obj", vertices, uvs, normals);
+
+    /*
+     * 1. Create a vertex buffer for the cube
     // Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
     // A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
     static const GLfloat g_vertex_cube_buffer_data[] = {
@@ -162,16 +172,17 @@ int main( void )
             1.000004f, 1.0f-0.671847f,
             0.667979f, 1.0f-0.335851f
     };
+*/
 
     GLuint vertexBufferCube;
     glGenBuffers(1, &vertexBufferCube);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferCube);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_cube_buffer_data), g_vertex_cube_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
     GLuint uvBufferCube;
     glGenBuffers(1, &uvBufferCube);
     glBindBuffer(GL_ARRAY_BUFFER, uvBufferCube);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 
     do{
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
